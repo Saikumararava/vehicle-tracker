@@ -11,7 +11,7 @@ let index = 0;
 let route = [];
 
 // Fetch dummy data
-fetch('https://your-render-backend-url/api/vehicle')
+fetch('http://localhost:5000/api/vehicle')
   .then(res => res.json())
   .then(data => {
     route = data;
