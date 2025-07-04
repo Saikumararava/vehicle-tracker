@@ -1,20 +1,40 @@
 const express = require('express');
 const cors = require('cors');
 const fs = require('fs');
+const path = require('path');
 
 const app = express();
-app.use(cors());
-
 const PORT = 5000;
 
-// Endpoint to get dummy vehicle data
+// Enable CORS so frontend on Vercel can fetch data from backend
+app.use(cors());
+
+// Root route to avoid "Cannot GET /" error
+app.get('/', (req, res) => {
+  res.send('🚗 Vehicle Tracker Backend is running!');
+});
+
+// API endpoint to get dummy vehicle data
 app.get('/api/vehicle', (req, res) => {
-  fs.readFile('backend/vehicleData.json', (err, data) => {
-    if (err) return res.status(500).json({ error: 'Error reading data file' });
-    res.json(JSON.parse(data));
+  const filePath = path.join(__dirname, 'vehicleData.json');
+
+  fs.readFile(filePath, 'utf8', (err, data) => {
+    if (err) {
+      console.error('Error reading vehicleData.json:', err);
+      return res.status(500).json({ error: 'Failed to read vehicle data.' });
+    }
+
+    try {
+      const jsonData = JSON.parse(data);
+      res.json(jsonData);
+    } catch (parseErr) {
+      console.error('Error parsing vehicleData.json:', parseErr);
+      res.status(500).json({ error: 'Invalid JSON format in data file.' });
+    }
   });
 });
 
+// Start the server
 app.listen(PORT, () => {
   console.log(`Server running at http://localhost:${PORT}`);
 });
